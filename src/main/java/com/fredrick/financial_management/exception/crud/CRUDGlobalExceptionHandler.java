@@ -23,6 +23,7 @@ public class CRUDGlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Response<String>> handleException(DataIsRequiredException exc) {
+        System.out.println(exc.getMessage());
         Response<String> error = Response.<String>builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
@@ -36,12 +37,12 @@ public class CRUDGlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Response<String>> handleException(DataNotFoundException exc) {
         Response<String> error = Response.<String>builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .code(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .data(null)
                 .errors(exc.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

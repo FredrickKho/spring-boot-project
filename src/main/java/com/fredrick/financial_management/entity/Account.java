@@ -25,6 +25,7 @@ public class Account implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id",nullable = false)
+    @JsonIgnore
     private int id;
     @Column(name = "uuid",nullable = false)
     private String uuid;
@@ -36,7 +37,7 @@ public class Account implements UserDetails{
     private String email;
     @Column(name = "password",nullable = false)
     private String password;
-    @OneToMany(mappedBy = "account",fetch = FetchType.LAZY,
+    @OneToMany(mappedBy = "account",fetch = FetchType.EAGER,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
                     CascadeType.DETACH, CascadeType.REFRESH})
     private List<Item> items;

@@ -1,5 +1,6 @@
 package com.fredrick.financial_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fredrick.financial_management.enumeration.ItemCategory;
 import com.fredrick.financial_management.enumeration.ItemType;
 import jakarta.persistence.*;
@@ -15,6 +16,7 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
+    @JsonIgnore
     private int id;
 
     @Column(name="name",nullable = false)
@@ -27,10 +29,10 @@ public class Item {
     @Column(name="category",nullable = false)
     private ItemCategory category;
 
-    @Column(name="location",nullable = false)
+    @Column(name="location")
     private String location;
 
-    @Column(name="date",nullable = false)
+    @Column(name="date")
     private Date date;
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +41,7 @@ public class Item {
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH})
-    @JoinColumn(name = "account.id")
+    @JoinColumn(name = "account.uuid")
     private Account account;
 
     @Column(name = "note")
@@ -51,7 +53,8 @@ public class Item {
             String location,
             Date date,
             ItemType type,
-            String note) {
+            String note
+            ) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
@@ -68,7 +71,8 @@ public class Item {
             String location,
             Date date,
             ItemType type,
-            String note) {
+            String note
+            ) {
         this.name = name;
         this.quantity = quantity;
         this.category = category;

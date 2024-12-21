@@ -1,5 +1,7 @@
 package com.fredrick.financial_management.exception.crud;
 
+import java.util.List;
+
 public class DataIsRequiredException extends RuntimeException{
     public DataIsRequiredException(String message) {
         super(message);

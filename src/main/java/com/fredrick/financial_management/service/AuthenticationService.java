@@ -15,6 +15,7 @@ import com.fredrick.financial_management.response.Response;
 import com.fredrick.financial_management.validator.AuthValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,13 +26,17 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class AuthenticationService {
-    private final AccountRepository repository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final AuthValidator authValidator;
+    @Autowired
+    private AccountRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthValidator authValidator;
 
     public Response<RegisterResponse> register(RegisterRequest request) {
         System.out.println(request);
@@ -47,9 +52,9 @@ public class AuthenticationService {
         try {
             repository.save(account);
         } catch (Exception e) {
-            throw new DuplicateDataException("Email already exists");
+            throw new DuplicateDataException("Credential already exists");
         }
-        var jwtToken = jwtService.generateToken(account);
+        var jwtToken = jwtService.generateToken(request.getEmail());
         return Response.<RegisterResponse>builder()
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())
@@ -70,10 +75,8 @@ public class AuthenticationService {
         }
         if (!authValidator.validateEmail(request.getEmail()))
             throw new AuthEmailFormatNotValid("Email wrong format");
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
-                request.getPassword()));
         var account = repository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(account);
+        var jwtToken = jwtService.generateToken(request.getEmail());
         return Response.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())

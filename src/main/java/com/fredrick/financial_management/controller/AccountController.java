@@ -1,11 +1,14 @@
 package com.fredrick.financial_management.controller;
 
 import com.fredrick.financial_management.entity.Account;
+import com.fredrick.financial_management.request.account.UpdateAccountRequest;
 import com.fredrick.financial_management.response.Response;
 import com.fredrick.financial_management.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,19 +29,20 @@ public class AccountController {
         return ResponseEntity.ok(accountService.findAccountByUuid(uuid));
     }
 
-    @GetMapping("")
-    public ResponseEntity<Response<List<Account>>> findAccountByUuid(){
+    @GetMapping("/all")
+    public ResponseEntity<Response<List<Account>>> findAll(){
         return ResponseEntity.ok(accountService.findAll());
     }
 
-    @PutMapping("")
-    public ResponseEntity<Response<Account>> updateAccount(@PathVariable String uuid){
-        return null;
+    @DeleteMapping("/{uuid}/delete")
+    public ResponseEntity<Response<String>> DeleteAccount(@PathVariable String uuid){
+        return ResponseEntity.ok(accountService.delete(uuid));
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<Response<Account>> DeleteAccount(@PathVariable String uuid){
-        return null;
+    @PatchMapping(path = "/update")
+    public ResponseEntity<Response<String>> updateAccount(@RequestBody UpdateAccountRequest request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication);
+        return ResponseEntity.ok(accountService.save(request));
     }
-
 }
