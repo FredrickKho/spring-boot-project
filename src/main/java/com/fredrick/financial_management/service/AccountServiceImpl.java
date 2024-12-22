@@ -10,6 +10,7 @@ import com.fredrick.financial_management.validator.AuthValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -64,19 +65,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Response<String> save(UpdateAccountRequest request) {
-//        if(!account.isEmpty()){
-//            log.info("INI REQUEST : "+request);
-//            if(request.getEmail() != null){
-//                if(!authValidator.validateEmail(request.getEmail())){
-//                    throw new AuthEmailFormatNotValid("Email format is not valid");
-//                }else{
-//                    account.get(0).setEmail(request.getEmail());
-//                }
-//            }
-//            if(request.getName() != null)
-//                account.get(0).setName(request.getName());
-//            accountRepository.save(account.get(0));
+        Account account =
+                (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        if(!request.getName().isEmpty()){
+//            account.setName(request.getName());
 //        }
+
         return Response.<String>builder()
                 .data("")
                 .code(HttpStatus.OK.value())

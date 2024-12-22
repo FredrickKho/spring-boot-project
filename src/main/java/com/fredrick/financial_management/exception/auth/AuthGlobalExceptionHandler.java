@@ -35,8 +35,8 @@ public class AuthGlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidTokenHandler.class)
-    public ResponseEntity<Response<String>> handleException(InvalidTokenHandler exc) {
+    @ExceptionHandler(TokenExceptionHandler.class)
+    public ResponseEntity<Response<String>> handleException(TokenExceptionHandler exc) {
         System.out.println("Caught InvalidTokenHandler exception: " + exc.getMessage());
         Response<String> error = Response.<String>builder()
                 .code(HttpStatus.UNAUTHORIZED.value())
@@ -45,22 +45,6 @@ public class AuthGlobalExceptionHandler {
                 .errors(exc.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Response<String>> handleBadCredentialsException(BadCredentialsException exc) {
-        // Log the exception for debugging
-        System.out.println("Caught BadCredentialsException: " + exc.getMessage());
-
-        Response<String> error = Response.<String>builder()
-                .code(HttpStatus.UNAUTHORIZED.value())
-                .status(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-                .data(null)
-                .errors(exc.getMessage())
-                .timestamp(System.currentTimeMillis())
-                .build();
-
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 }

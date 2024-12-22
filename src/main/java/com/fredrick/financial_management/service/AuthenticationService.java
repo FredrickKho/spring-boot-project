@@ -16,12 +16,16 @@ import com.fredrick.financial_management.validator.AuthValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,20 +42,40 @@ public class AuthenticationService {
     @Autowired
     private AuthValidator authValidator;
 
-    public Response<RegisterResponse> register(RegisterRequest request) {
-        System.out.println(request);
+    public Response<RegisterResponse> register(@Valid RegisterRequest request) {
+        System.out.println("REGISTER REQUEST : "+request);
         if (!authValidator.validateEmail(request.getEmail()))
             throw new AuthEmailFormatNotValid("Email wrong format");
+        List<String> errors = new ArrayList<>();
+        if(request.getFirstname() == null){
+            errors.add("First name is empty");
+        }
+        if(request.getLastname() == null){
+            errors.add("Last name is empty");
+        }
+        if(request.getGender() == null){
+            errors.add("Gender is empty");
+        }
+        if(!errors.isEmpty()){
+            throw new DataIsRequiredException(errors);
+        }
         var account = Account.builder()
-                .name(request.getName())
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(AccountRole.MEMBER)
                 .uuid(UUID.randomUUID().toString())
+                .gender(request.getGender())
+                .dob(request.getDob())
+                .phonenumber(request.getPhonenumber())
+                .country(request.getCountry())
                 .build();
+        System.out.println("ACCOUNT : "+account);
         try {
             repository.save(account);
         } catch (Exception e) {
+            System.out.println(e);
             throw new DuplicateDataException("Credential already exists");
         }
         var jwtToken = jwtService.generateToken(request.getEmail());

@@ -3,8 +3,9 @@ package com.fredrick.financial_management.exception.crud;
 import java.util.List;
 
 public class DataIsRequiredException extends RuntimeException{
-    public DataIsRequiredException(String message) {
-        super(message);
+    private Object errMessage;
+    public DataIsRequiredException(Object message) {
+        this.errMessage = message;
     }
 
     public DataIsRequiredException(String message, Throwable cause) {
@@ -13,5 +14,13 @@ public class DataIsRequiredException extends RuntimeException{
 
     public DataIsRequiredException(Throwable cause) {
         super(cause);
+    }
+
+    public Object getErrMessage() {
+        return errMessage;
+    }
+
+    public void setErrMessage(Object errMessage) {
+        this.errMessage = errMessage;
     }
 }

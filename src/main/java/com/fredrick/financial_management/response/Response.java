@@ -11,7 +11,7 @@ public class Response<T> {
     private int code;
     private String status;
     private T data;
-    private String errors;
+    private T errors;
     private long timestamp;
 
 }

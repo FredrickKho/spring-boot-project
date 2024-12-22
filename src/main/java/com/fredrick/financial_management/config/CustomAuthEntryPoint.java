@@ -1,6 +1,5 @@
 package com.fredrick.financial_management.config;
 
-import com.fredrick.financial_management.exception.auth.InvalidTokenHandler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

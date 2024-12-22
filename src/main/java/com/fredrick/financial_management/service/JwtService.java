@@ -1,6 +1,5 @@
 package com.fredrick.financial_management.service;
 
-import com.fredrick.financial_management.exception.auth.InvalidTokenHandler;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
@@ -62,10 +61,6 @@ public class JwtService {
     public boolean validateToken(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
         boolean isTokenExpired = !isTokenExpired(token);
-//        System.out.println("expired token:" + isTokenExpired);
-        if(!isTokenExpired){
-            throw new InvalidTokenHandler("Invalid Token");
-        }
         return (userName.equals(userDetails.getUsername()) && isTokenExpired);
     }
 

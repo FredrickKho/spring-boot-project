@@ -8,6 +8,5 @@ import javax.validation.constraints.Size;
 public class UpdateAccountRequest {
     @Size(max = 100)
     private String name;
-    private String email;
 
 }

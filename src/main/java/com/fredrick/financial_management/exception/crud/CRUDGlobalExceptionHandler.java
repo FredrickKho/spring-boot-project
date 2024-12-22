@@ -22,13 +22,13 @@ public class CRUDGlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<Response<String>> handleException(DataIsRequiredException exc) {
-        System.out.println(exc.getMessage());
-        Response<String> error = Response.<String>builder()
+    public ResponseEntity<Response<Object>> handleException(DataIsRequiredException exc) {
+        System.out.println("DataIsRequiredException Called :"+exc.getErrMessage());
+        Response<Object> error = Response.<Object>builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .data(null)
-                .errors(exc.getMessage())
+                .errors(exc.getErrMessage())
                 .timestamp(System.currentTimeMillis())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
