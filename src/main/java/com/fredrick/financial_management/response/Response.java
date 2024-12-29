@@ -13,5 +13,5 @@ public class Response<T> {
     private T data;
     private T errors;
     private long timestamp;
-
+    private Pagination pagination;
 }

@@ -1,23 +1,15 @@
-package com.fredrick.financial_management.request;
+package com.fredrick.financial_management.request.account;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Date;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class RegisterRequest {
+public class UpdateProfileRequest {
     @Size(max = 50)
     private String firstname;
-    private String email;
-    private String password;
     private String gender;
     private String dob;
     private String phonenumber;

@@ -1,6 +1,7 @@
 package com.fredrick.financial_management.exception.auth;
 
 import com.fredrick.financial_management.response.Response;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

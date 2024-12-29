@@ -1,17 +1,13 @@
 package com.fredrick.financial_management.controller;
 
-import com.fredrick.financial_management.entity.Account;
-import com.fredrick.financial_management.request.account.UpdateAccountRequest;
+import com.fredrick.financial_management.request.account.ChangePasswordRequest;
+import com.fredrick.financial_management.request.account.UpdateProfileRequest;
 import com.fredrick.financial_management.response.Response;
 import com.fredrick.financial_management.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -25,26 +21,16 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping("/{uuid}")
-    public ResponseEntity<Response<Account>> findAccountByUuid(@PathVariable String uuid){
-        return ResponseEntity.ok(accountService.findAccountByUuid(uuid));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<Response<List<Account>>> findAll(){
-        return ResponseEntity.ok(accountService.findAll());
-    }
-
-    @DeleteMapping("/{uuid}/delete")
-    public ResponseEntity<Response<String>> DeleteAccount(@PathVariable String uuid){
-        return ResponseEntity.ok(accountService.delete(uuid));
-    }
-
     @PatchMapping(path = "/update")
-    public ResponseEntity<Response<String>> updateAccount(@RequestBody UpdateAccountRequest request){
+    public ResponseEntity<Response<String>> updateAccount(@RequestBody UpdateProfileRequest request){
         log.info("Hitting PATCH /api/account/update");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        System.out.println(((Account)authentication.getPrincipal()).get);
-        return ResponseEntity.ok(accountService.save(request));
+        return ResponseEntity.ok(accountService.update(request));
     }
+
+    @PatchMapping(path = "/changePassword")
+    public ResponseEntity<Response<String>> changePassword(ChangePasswordRequest request){
+        log.info("Hitting PATCH /api/account/changePassword");
+        return ResponseEntity.ok(accountService.changePassword(request));
+    }
+
 }

@@ -31,11 +31,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(configurer -> configurer
-                    .requestMatchers("/api/account/update").authenticated()
+                    .requestMatchers("/api/x-account/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/account/**").permitAll()
-                    .requestMatchers("/api/item/**").permitAll()
-                    .requestMatchers("/api/demo-controller").authenticated()
+                    .requestMatchers("/api/x-item/**").permitAll()
                     .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider)

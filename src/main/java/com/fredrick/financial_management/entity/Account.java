@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fredrick.financial_management.enumeration.AccountRole;
 import com.fredrick.financial_management.enumeration.Country;
 import com.fredrick.financial_management.enumeration.Gender;
-import com.fredrick.financial_management.validator.EnumValue;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
@@ -27,39 +26,37 @@ import java.util.List;
 @Data
 @Entity
 @Table(name="account")
+@AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class Account implements UserDetails{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id",nullable = false)
-    @JsonIgnore
-    private int id;
-    @Column(name = "uuid",nullable = false)
+    @Column(name = "uuid",nullable = false, unique = true)
     private String uuid;
     @Column(name = "firstname",nullable = false)
     private String firstname;
+    @Column(name = "lastname",nullable = false)
+    private String lastname;
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
             flags = Pattern.Flag.CASE_INSENSITIVE)
     @Column(name = "email", unique = true,nullable = false)
     private String email;
     @Column(name = "password",nullable = false)
+    @JsonIgnore
     private String password;
     @Column(name = "gender",nullable = false)
-    @EnumValue(enumClass = Gender.class, message = "Invalid gender value")
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
     @Column(name = "dob",nullable = true)
-    private Date dob;
+    private LocalDate dob;
     @Column(name = "phonenumber",nullable = true)
     private String phonenumber;
-    @Column(name = "lastname",nullable = false)
-    private String lastname;
     @Column(name = "isActive",nullable = false)
     @Builder.Default
     private boolean isActive = true;
     @Column(name = "country",nullable = true)
-    @EnumValue(enumClass = Country.class, message = "Invalid country value")
-    private String country;
+    @Enumerated(EnumType.STRING)
+    private Country country;
     @Column(name = "createDate",nullable = true)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -106,5 +103,15 @@ public class Account implements UserDetails{
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+    public Account() {
+    }
 
+    @Override
+    public String toString() {
+        return "Account{" + "uuid='" + uuid + '\'' + ", firstname='" + firstname + '\''
+                + ", lastname='" + lastname + '\'' + ", email='" + email + '\'' + ", password='"
+                + password + '\'' + ", gender=" + gender + ", dob=" + dob + ", phonenumber='"
+                + phonenumber + '\'' + ", isActive=" + isActive + ", country=" + country
+                + ", createdAt=" + createdAt + ", items=" + items + ", role=" + role + '}';
+    }
 }

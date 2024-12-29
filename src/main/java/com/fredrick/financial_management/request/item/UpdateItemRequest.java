@@ -1,13 +1,11 @@
 package com.fredrick.financial_management.request.item;
 
-import com.fredrick.financial_management.enumeration.ItemCategory;
-import com.fredrick.financial_management.enumeration.ItemType;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class CreateItemRequest {
+public class UpdateItemRequest {
     private String uuid;
     private String name;
     private String quantity;

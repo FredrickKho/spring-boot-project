@@ -56,8 +56,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
             handlerExceptionResolver.resolveException(request, response, null, new TokenExceptionHandler("JWT Token has expired.", e));
-        } catch (MalformedJwtException | IllegalArgumentException e) {
-            handlerExceptionResolver.resolveException(request, response, null, new TokenExceptionHandler("Invalid JWT Token.", e));
+        } catch (Exception e) {
+            handlerExceptionResolver.resolveException(request, response, null, new TokenExceptionHandler(e.getLocalizedMessage(), e));
         }
     }
 }
