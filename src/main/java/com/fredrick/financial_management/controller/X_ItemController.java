@@ -1,6 +1,7 @@
 package com.fredrick.financial_management.controller;
 
 import com.fredrick.financial_management.entity.Item;
+import com.fredrick.financial_management.enumeration.ItemCategory;
 import com.fredrick.financial_management.request.item.CreateItemRequest;
 import com.fredrick.financial_management.request.item.UpdateItemRequest;
 import com.fredrick.financial_management.response.Response;
@@ -43,6 +44,10 @@ public class X_ItemController {
     public ResponseEntity<Response<String>> updateItem(@PathVariable String id,
             @RequestBody UpdateItemRequest request) {
         return ResponseEntity.ok(itemService.xUpdate(id, request));
+    }
+    @GetMapping("/category")
+    public ResponseEntity<Response<List<String>>> getCategory(){
+        return ResponseEntity.ok(itemService.getCategory());
     }
 }
 

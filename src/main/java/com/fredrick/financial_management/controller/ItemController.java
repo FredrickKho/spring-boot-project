@@ -28,6 +28,24 @@ public class ItemController {
         return ResponseEntity.ok(itemService.findAll());
     }
 
+    @GetMapping("/getAccountItem")
+    public ResponseEntity<Response<List<Item>>> getAccountItem(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String date,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        return ResponseEntity.ok(itemService.getAccountItem(category,type,date,page,size));
+    }
+
+    @GetMapping("/getAccountItemWithoutPagination")
+    public ResponseEntity<Response<List<Item>>> getAccountItem( @RequestParam(required = false) String category,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String date
+    ){
+        return ResponseEntity.ok(itemService.getAccountItem(category,type,date));
+    }
 //    @PatchMapping(path = "/{uuid}/update")
 //    public ResponseEntity<Response<String>> updateItem(@PathVariable String itemId, @RequestBody UpdateAccountRequest request){
 //        return ResponseEntity.ok(itemService.save(uuid,request));

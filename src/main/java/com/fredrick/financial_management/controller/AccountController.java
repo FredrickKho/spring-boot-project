@@ -1,5 +1,6 @@
 package com.fredrick.financial_management.controller;
 
+import com.fredrick.financial_management.entity.Account;
 import com.fredrick.financial_management.request.account.ChangePasswordRequest;
 import com.fredrick.financial_management.request.account.UpdateProfileRequest;
 import com.fredrick.financial_management.response.Response;
@@ -20,7 +21,11 @@ public class AccountController {
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
-
+    @GetMapping(path = "/getAccountDetails")
+    public ResponseEntity<Response<Account>> getAccountDetail(){
+        log.info("Hitting GET /api/account/getAccountDetails");
+        return ResponseEntity.ok(accountService.getAccountDetail());
+    }
     @PatchMapping(path = "/update")
     public ResponseEntity<Response<String>> updateAccount(@RequestBody UpdateProfileRequest request){
         log.info("Hitting PATCH /api/account/update");

@@ -26,11 +26,12 @@ public class AuthGlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Response<String>> handleException(AuthenticationException exc) {
         System.out.println("Caught AuthenticationException: " + exc.getMessage());
+        String message = exc.getMessage().equals("Bad credentials") ? "Wrong email and password" : exc.getMessage();
         Response<String> error = Response.<String>builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .data(null)
-                .errors(exc.getMessage())
+                .errors(message)
                 .timestamp(System.currentTimeMillis())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

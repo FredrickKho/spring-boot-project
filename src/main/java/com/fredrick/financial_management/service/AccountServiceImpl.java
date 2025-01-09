@@ -10,7 +10,7 @@ import com.fredrick.financial_management.request.account.ChangePasswordRequest;
 import com.fredrick.financial_management.request.account.UpdateProfileRequest;
 import com.fredrick.financial_management.response.Pagination;
 import com.fredrick.financial_management.response.Response;
-import com.fredrick.financial_management.validator.ValidatorUtil;
+import com.fredrick.financial_management.util.ValidatorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,6 +58,18 @@ public class AccountServiceImpl implements AccountService {
                 .pagination(pagination)
                 .build();
         return response;
+    }
+
+    @Override
+    public Response<Account> getAccountDetail() {
+        Account account =
+                (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return Response.<Account>builder()
+                .data(account)
+                .code(HttpStatus.OK.value())
+                .status(HttpStatus.OK.getReasonPhrase())
+                .timestamp(System.currentTimeMillis())
+                .build();
     }
 
     @Override

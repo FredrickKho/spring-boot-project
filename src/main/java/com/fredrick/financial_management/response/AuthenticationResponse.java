@@ -1,5 +1,6 @@
 package com.fredrick.financial_management.response;
 
+import com.fredrick.financial_management.entity.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthenticationResponse {
-    private String token;
+    String token;
+    String expiredTime;
 
 }

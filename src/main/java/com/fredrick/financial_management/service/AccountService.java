@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface AccountService {
     Response<List<Account>> findAll(int page, int size);
+    Response<Account> getAccountDetail();
     Response<Account> findAccountByUuid(String uuid);
     Response<String> update(UpdateProfileRequest request);
     Response<String> delete(String uuid);

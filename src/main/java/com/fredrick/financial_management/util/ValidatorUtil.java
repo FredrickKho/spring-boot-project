@@ -1,4 +1,4 @@
-package com.fredrick.financial_management.validator;
+package com.fredrick.financial_management.util;
 
 import org.springframework.context.annotation.Configuration;
 

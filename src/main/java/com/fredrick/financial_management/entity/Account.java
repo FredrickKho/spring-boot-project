@@ -57,13 +57,18 @@ public class Account implements UserDetails{
     @Column(name = "country",nullable = true)
     @Enumerated(EnumType.STRING)
     private Country country;
+
+    @JsonIgnore
     @Column(name = "createDate",nullable = true)
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "account",fetch = FetchType.EAGER,
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
                     CascadeType.DETACH, CascadeType.REFRESH})
     private List<Item> items;
+    @JsonIgnore
     @Column(name = "role",nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountRole role;

@@ -37,10 +37,24 @@ public class ItemSpecification {
             return null;
         };
     }
-
+    public static Specification<Item> filterByUUID(String uuid) {
+        return (root, query, criteriaBuilder) -> {
+            if (uuid != null) {
+                // Access the 'account' relationship and use the 'uuid' field
+                return criteriaBuilder.equal(root.get("account").get("uuid"), uuid);
+            }
+            return null;
+        };
+    }
     public static Specification<Item> filter(ItemCategory category, ItemType type, LocalDate date) {
         return Specification.where(filterByCategory(category))
                 .and(filterByType(type))
                 .and(filterByDate(date));
+    }
+    public static Specification<Item> filter(ItemCategory category, ItemType type, LocalDate date, String uuid) {
+        return Specification.where(filterByCategory(category))
+                .and(filterByType(type))
+                .and(filterByDate(date))
+                .and(filterByUUID(uuid));
     }
 }

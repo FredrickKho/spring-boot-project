@@ -5,17 +5,15 @@ import com.fredrick.financial_management.dao.ItemRepository;
 import com.fredrick.financial_management.dao.ItemSpecification;
 import com.fredrick.financial_management.entity.Account;
 import com.fredrick.financial_management.entity.Item;
-import com.fredrick.financial_management.enumeration.Country;
 import com.fredrick.financial_management.enumeration.ItemCategory;
 import com.fredrick.financial_management.enumeration.ItemType;
-import com.fredrick.financial_management.exception.crud.DataIsRequiredException;
 import com.fredrick.financial_management.exception.crud.DataNotFoundException;
 import com.fredrick.financial_management.exception.crud.InvalidRequestException;
 import com.fredrick.financial_management.request.item.CreateItemRequest;
 import com.fredrick.financial_management.request.item.UpdateItemRequest;
 import com.fredrick.financial_management.response.Pagination;
 import com.fredrick.financial_management.response.Response;
-import com.fredrick.financial_management.validator.ValidatorUtil;
+import com.fredrick.financial_management.util.ValidatorUtil;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -33,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -56,6 +56,83 @@ public class ItemServiceImpl implements ItemService {
                 .build();
         return item;
     }
+    @Override
+    public Response<List<Item>> getAccountItem(String category, String type, String date){
+        Account account =
+                (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String uuid = account.getUuid();
+        ItemCategory itemCategory = null;
+        ItemType itemType = null;
+        LocalDate localDate = null;
+        try {
+            itemCategory = ItemCategory.valueOf(category.toUpperCase());
+        }catch (Exception e){
+
+        }
+        try {
+            itemType = ItemType.valueOf(type.toUpperCase());
+        }catch (Exception ignored){
+
+        }
+        if(date!= null && ValidatorUtil.isValidLocalDate(date)){
+            localDate = LocalDate.parse(date);
+        }
+        Specification<Item> filters = ItemSpecification.filter(itemCategory,itemType,localDate,uuid);
+        List<Item> getItem = itemRepository.findAll(filters);
+        Response<List<Item>> item = Response.<List<Item>>builder()
+                .data(getItem)
+                .code(HttpStatus.OK.value())
+                .status(HttpStatus.OK.getReasonPhrase())
+                .timestamp(System.currentTimeMillis())
+                .pagination(null)
+                .build();
+        return item;
+    }
+    @Override
+    public Response<List<Item>> getAccountItem(String category,
+            String type,
+            String date,
+            int page,
+            int size) {
+        Account account =
+                (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String uuid = account.getUuid();
+        ItemCategory itemCategory = null;
+        ItemType itemType = null;
+        LocalDate localDate = null;
+        try {
+            itemCategory = ItemCategory.valueOf(category.toUpperCase());
+        }catch (Exception e){
+
+        }
+        try {
+            itemType = ItemType.valueOf(type.toUpperCase());
+        }catch (Exception ignored){
+
+        }
+        if(date!= null && ValidatorUtil.isValidLocalDate(date)){
+            localDate = LocalDate.parse(date);
+        }
+        Specification<Item> filters = ItemSpecification.filter(itemCategory,itemType,localDate,uuid);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Item> itemPage = itemRepository.findAll(filters,pageable);
+        //        logger.debug(itemPage.toString());
+        Pagination pagination = Pagination.builder()
+                .page(page)
+                .size(size)
+                .totalPage(itemPage.getTotalPages())
+                .totalSize((int) itemPage.getTotalElements())
+                .build();
+        Response<List<Item>> item = Response.<List<Item>>builder()
+                .data(itemPage.getContent())
+                .code(HttpStatus.OK.value())
+                .status(HttpStatus.OK.getReasonPhrase())
+                .timestamp(System.currentTimeMillis())
+                .pagination(pagination)
+                .build();
+        return item;
+    }
+
     @Override
     public Response<List<Item>> findAll(String category, String type, String date, int page, int size) {
         ItemCategory itemCategory = null;
@@ -316,6 +393,18 @@ public class ItemServiceImpl implements ItemService {
                 .timestamp(System.currentTimeMillis())
                 .build();
     }
+
+    @Override
+    public Response<List<String>> getCategory() {
+        List<String> categories = Arrays.stream(ItemCategory.values()).map(ItemCategory::getName).collect(Collectors.toList());
+        return Response.<List<String>>builder()
+                .data(categories)
+                .code(HttpStatus.OK.value())
+                .status(HttpStatus.OK.getReasonPhrase())
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
     @Override
     public Response<String> update(String id, UpdateItemRequest request) {
         Account account =
