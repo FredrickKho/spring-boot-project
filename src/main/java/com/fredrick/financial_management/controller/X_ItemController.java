@@ -49,5 +49,9 @@ public class X_ItemController {
     public ResponseEntity<Response<List<String>>> getCategory(){
         return ResponseEntity.ok(itemService.getCategory());
     }
+    @DeleteMapping("/{uuid}/delete")
+    public ResponseEntity<Response<String>> delete(@PathVariable String uuid, @RequestParam String itemId){
+        return ResponseEntity.ok(itemService.xDelete(uuid,itemId));
+    }
 }
 

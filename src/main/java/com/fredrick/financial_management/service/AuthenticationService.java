@@ -72,16 +72,16 @@ public class AuthenticationService {
         if(request.getGender() == null){
             errors.add("Gender is empty");
         } else {
-            try {
-                gender = Gender.valueOf(request.getGender().toUpperCase());
-            }catch (Exception e){
+            gender = Gender.getGenderByName(request.getGender());
+            if (gender == null) {
                 errors.add("Gender is invalid");
             }
         }
-        if(request.getCountry() != null){
-            try {
-                country = Country.valueOf(request.getCountry().toUpperCase());
-            }catch (Exception e){
+        if(request.getGender() == null){
+            errors.add("Country is empty");
+        } else {
+            country = Country.getCountryByName(request.getCountry());
+            if (country == null){
                 errors.add("Country is invalid");
             }
         }
@@ -106,10 +106,10 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(AccountRole.MEMBER)
                 .uuid(UUID.randomUUID().toString())
-                .gender(gender)
+                .gender(gender.getName())
                 .dob(date)
                 .phonenumber(request.getPhonenumber())
-                .country(country)
+                .country(country.getName())
                 .build();
         System.out.println("ACCOUNT : "+account);
         try {
@@ -118,14 +118,6 @@ public class AuthenticationService {
 //            System.out.println(e);
             throw new DuplicateDataException("Credential already exists");
         }
-        var jwtToken = jwtService.generateToken(request.getEmail());
-        Cookie cookie = new Cookie("Authorization",jwtToken);
-        cookie.setHttpOnly(httpOnly); // Make it accessible only via HTTP requests (not via JavaScript)
-        cookie.setSecure(secure); // Only sent over HTTPS in production
-        cookie.setPath("/"); // Available for the entire application
-        cookie.setMaxAge(86400); // Expires after (value) seconds
-        response.addCookie(cookie);
-        String expiredTime = convertToISO8601(String.valueOf(jwtService.extractExpiration(jwtToken)));
         return Response.<RegisterResponse>builder()
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())

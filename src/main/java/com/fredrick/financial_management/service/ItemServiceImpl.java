@@ -15,6 +15,7 @@ import com.fredrick.financial_management.response.Pagination;
 import com.fredrick.financial_management.response.Response;
 import com.fredrick.financial_management.util.ValidatorUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,63 +54,61 @@ public class ItemServiceImpl implements ItemService {
         return item;
     }
     @Override
-    public Response<List<Item>> getAccountItem(String category, String type, String date){
+    public Response<List<Item>> getAccountItem(String category, String type, String startDate, String endDate){
         Account account =
                 (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String uuid = account.getUuid();
-        ItemCategory itemCategory = null;
-        ItemType itemType = null;
-        LocalDate localDate = null;
-        try {
-            itemCategory = ItemCategory.valueOf(category.toUpperCase());
-        }catch (Exception e){
-
+        ItemCategory itemCategory = ItemCategory.getCategoryByName(category);
+        ItemType itemType = ItemType.getTypeByName(type);
+        LocalDate filterStartDate = null, filterEndDate = null;
+        if(startDate!= null && ValidatorUtil.isValidLocalDate(startDate)){
+            filterStartDate = LocalDate.parse(startDate);
         }
-        try {
-            itemType = ItemType.valueOf(type.toUpperCase());
-        }catch (Exception ignored){
-
+        if(endDate!= null && ValidatorUtil.isValidLocalDate(endDate)){
+            filterEndDate = LocalDate.parse(endDate);
         }
-        if(date!= null && ValidatorUtil.isValidLocalDate(date)){
-            localDate = LocalDate.parse(date);
-        }
-        Specification<Item> filters = ItemSpecification.filter(itemCategory,itemType,localDate,uuid);
+        Specification<Item> filters = ItemSpecification.filter(
+                itemCategory != null ? itemCategory.getName() : null,
+                itemType != null ? itemType.getName() : null,
+                filterStartDate,
+                filterEndDate,
+                uuid
+        );
         List<Item> getItem = itemRepository.findAll(filters);
-        Response<List<Item>> item = Response.<List<Item>>builder()
+        return Response.<List<Item>>builder()
                 .data(getItem)
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())
                 .timestamp(System.currentTimeMillis())
                 .pagination(null)
                 .build();
-        return item;
     }
     @Override
     public Response<List<Item>> getAccountItem(String category,
             String type,
-            String date,
+            String startDate,
+            String endDate,
             int page,
             int size) {
         Account account =
                 (Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String uuid = account.getUuid();
-        ItemCategory itemCategory = null;
-        ItemType itemType = null;
-        LocalDate localDate = null;
-        try {
-            itemCategory = ItemCategory.valueOf(category.toUpperCase());
-        }catch (Exception e){
-
+        ItemCategory itemCategory = category != null ? ItemCategory.getCategoryByName(category) : null;
+        ItemType itemType = type != null ? ItemType.getTypeByName(type) : null;
+        LocalDate filterStartDate = null, filterEndDate = null;
+        if(startDate!= null && ValidatorUtil.isValidLocalDate(startDate)){
+            filterStartDate = LocalDate.parse(startDate);
         }
-        try {
-            itemType = ItemType.valueOf(type.toUpperCase());
-        }catch (Exception ignored){
-
+        if(endDate!= null && ValidatorUtil.isValidLocalDate(endDate)){
+            filterEndDate = LocalDate.parse(endDate);
         }
-        if(date!= null && ValidatorUtil.isValidLocalDate(date)){
-            localDate = LocalDate.parse(date);
-        }
-        Specification<Item> filters = ItemSpecification.filter(itemCategory,itemType,localDate,uuid);
+        Specification<Item> filters = ItemSpecification.filter(
+                itemCategory != null ? itemCategory.getName() : null,
+                itemType != null ? itemType.getName() : null,
+                filterStartDate,
+                filterEndDate,
+                uuid
+        );
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Item> itemPage = itemRepository.findAll(filters,pageable);
         //        logger.debug(itemPage.toString());
@@ -123,36 +118,28 @@ public class ItemServiceImpl implements ItemService {
                 .totalPage(itemPage.getTotalPages())
                 .totalSize((int) itemPage.getTotalElements())
                 .build();
-        Response<List<Item>> item = Response.<List<Item>>builder()
+        return Response.<List<Item>>builder()
                 .data(itemPage.getContent())
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())
                 .timestamp(System.currentTimeMillis())
                 .pagination(pagination)
                 .build();
-        return item;
     }
 
     @Override
     public Response<List<Item>> findAll(String category, String type, String date, int page, int size) {
-        ItemCategory itemCategory = null;
-        ItemType itemType = null;
+        ItemCategory itemCategory = category != null ? ItemCategory.getCategoryByName(category) : null;
+        ItemType itemType = type != null ? ItemType.getTypeByName(type) : null;
         LocalDate localDate = null;
-        try {
-            itemCategory = ItemCategory.valueOf(category.toUpperCase());
-        }catch (Exception e){
-
-        }
-        try {
-            itemType = ItemType.valueOf(type.toUpperCase());
-        }catch (Exception ignored){
-
-        }
         if(date!= null && ValidatorUtil.isValidLocalDate(date)){
             localDate = LocalDate.parse(date);
         }
-        Specification<Item> filters = ItemSpecification.filter(itemCategory,itemType,localDate);
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Specification<Item> filters = ItemSpecification.filter(
+                itemCategory != null ? itemCategory.getName() : null,
+                itemType != null ? itemType.getName() : null,
+                localDate
+        );        Pageable pageable = PageRequest.of(page - 1, size);
         Page<Item> itemPage = itemRepository.findAll(filters,pageable);
 //        logger.debug(itemPage.toString());
         Pagination pagination = Pagination.builder()
@@ -161,14 +148,13 @@ public class ItemServiceImpl implements ItemService {
                 .totalPage(itemPage.getTotalPages())
                 .totalSize((int) itemPage.getTotalElements())
                 .build();
-        Response<List<Item>> item = Response.<List<Item>>builder()
+        return Response.<List<Item>>builder()
                 .data(itemPage.getContent())
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())
                 .timestamp(System.currentTimeMillis())
                 .pagination(pagination)
                 .build();
-        return item;
     }
     @Override
     @Transactional
@@ -180,6 +166,7 @@ public class ItemServiceImpl implements ItemService {
         ItemType type = null;
         LocalDate date = null;
         System.out.println("CreateItemRequest : "+request);
+        System.out.println("Account : "+account);
         if (request.getName() == null) {
             errMessage.add("Name must not empty");
         }
@@ -200,27 +187,28 @@ public class ItemServiceImpl implements ItemService {
         if (request.getCategory() == null) {
             errMessage.add("Category must not empty");
         } else {
-            try {
-                category = ItemCategory.valueOf(request.getCategory().toUpperCase());
-            } catch (Exception e) {
-                errMessage.add("Category is invalid");
+            category = ItemCategory.getCategoryByName(request.getCategory());
+            if (category == null){
+                errMessage.add("Invalid category or there's no such value for category type");
             }
         }
         if (request.getType() == null) {
             errMessage.add("Item type must not empty");
         } else {
-            try {
-                type = ItemType.valueOf(request.getType().toUpperCase());
-            } catch (Exception e) {
-                errMessage.add("Item type is invalid");
+            type = ItemType.getTypeByName(request.getType());
+            if (type == null){
+                errMessage.add("Invalid item type or there's no such value for item type");
             }
         }
-        if (request.getDate() != null) {
+        if(request.getDate() == null){
+            errMessage.add("Date must not empty");
+        } else {
             if (!ValidatorUtil.isValidLocalDate(request.getDate()))
                 errMessage.add("Date format is invalid (must be YYYY/MM/DD and valid day and month)");
             else
                 date = LocalDate.parse(request.getDate());
         }
+
         if (!errMessage.isEmpty()) {
             throw new InvalidRequestException(errMessage);
         }
@@ -228,10 +216,10 @@ public class ItemServiceImpl implements ItemService {
                 .name(request.getName())
                 .quantity(Integer.parseInt(request.getQuantity()))
                 .totalPrice(Long.parseLong(request.getTotalPrice()))
-                .category(category)
+                .category(category.getName())
                 .location(request.getLocation())
                 .date(date)
-                .type(type)
+                .type(type.getName())
                 .note(request.getNote())
                 .build();
         item.setAccount(entityManager.merge(account));
@@ -279,22 +267,22 @@ public class ItemServiceImpl implements ItemService {
         if (request.getCategory() == null) {
             errMessage.add("Category must not empty");
         } else {
-            try {
-                category = ItemCategory.valueOf(request.getCategory().toUpperCase());
-            } catch (Exception e) {
-                errMessage.add("Category is invalid");
+            category = ItemCategory.getCategoryByName(request.getCategory());
+            if (category == null){
+                errMessage.add("Invalid category or there's no such value for category type");
             }
         }
         if (request.getType() == null) {
             errMessage.add("Item type must not empty");
         } else {
-            try {
-                type = ItemType.valueOf(request.getType().toUpperCase());
-            } catch (Exception e) {
-                errMessage.add("Item type is invalid");
+            type = ItemType.getTypeByName(request.getType());
+            if (type == null){
+                errMessage.add("Invalid item type or there's no such value for item type");
             }
         }
-        if (request.getDate() != null) {
+        if(request.getDate() == null){
+            errMessage.add("Date must not empty");
+        } else {
             if (!ValidatorUtil.isValidLocalDate(request.getDate()))
                 errMessage.add("Date format is invalid (must be YYYY/MM/DD and valid day and month)");
             else
@@ -307,10 +295,10 @@ public class ItemServiceImpl implements ItemService {
                 .name(request.getName())
                 .quantity(Integer.parseInt(request.getQuantity()))
                 .totalPrice(Long.parseLong(request.getTotalPrice()))
-                .category(category)
+                .category(category.getName())
                 .location(request.getLocation())
                 .date(date)
-                .type(type)
+                .type(type.getName())
                 .note(request.getNote())
                 .build();
         item.setAccount(account);
@@ -357,20 +345,20 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         if (request.getCategory() != null) {
-            try {
-                item.setCategory(ItemCategory.valueOf(request.getCategory().toUpperCase()));
-            } catch (Exception e) {
-                errMessage.add("Category is invalid");
+            if(ItemCategory.getCategoryByName(request.getCategory()) != null){
+                item.setCategory(request.getCategory());
+            } else {
+                errMessage.add("Invalid category item or there's no such value for category");
             }
         }
         if (request.getLocation() != null) {
             item.setLocation(request.getLocation());
         }
         if (request.getType() != null) {
-            try {
-                item.setType(ItemType.valueOf(request.getType().toUpperCase()));
-            } catch (Exception e) {
-                errMessage.add("Item type is invalid");
+            if(ItemType.getTypeByName(request.getType()) != null){
+                item.setType(request.getType());
+            } else {
+                errMessage.add("Invalid item type or there's no such value for item type");
             }
         }
         if (request.getNote() != null) {
@@ -405,6 +393,73 @@ public class ItemServiceImpl implements ItemService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public Response<String> delete(String id) {
+        Account account = entityManager.merge((Account) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        Optional<Item> item = itemRepository.findById(id);
+        if(item.isPresent()){
+            if(!Objects.equals(item.get().getAccountId(), account.getUuid())){
+                return Response.<String>builder()
+                        .data("DELETE FAILED, ITEM IS NOT BELONG TO THIS ACCOUNT")
+                        .code(HttpStatus.OK.value())
+                        .status(HttpStatus.OK.getReasonPhrase())
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+            }else{
+//                logger.info("====================================="+item.get().toString());
+                try {
+                    account.getItems().remove(item.get());
+                    accountRepository.save(account);
+                    return Response.<String>builder()
+                            .data("Delete Success")
+                            .code(HttpStatus.OK.value())
+                            .status(HttpStatus.OK.getReasonPhrase())
+                            .timestamp(System.currentTimeMillis())
+                            .build();
+                } catch (Exception e) {
+                    e.printStackTrace(); // Log the exception
+                    throw new RuntimeException("Error deleting the item", e);
+                }
+            }
+        }else{
+            throw new DataNotFoundException("Item not found");
+        }
+    }
+
+    @Override
+    @Transactional
+    public Response<String> xDelete(String uuid, String id) {
+        Account account = accountRepository.findByUuid(uuid).get(0);
+        Optional<Item> item = itemRepository.findById(id);
+        if(item.isPresent()){
+            if(!Objects.equals(item.get().getAccountId(), account.getUuid())){
+                return Response.<String>builder()
+                        .data("DELETE FAILED, ITEM IS NOT BELONG TO THIS ACCOUNT")
+                        .code(HttpStatus.OK.value())
+                        .status(HttpStatus.OK.getReasonPhrase())
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+            }else{
+                //                logger.info("====================================="+item.get().toString());
+                try {
+                    account.getItems().remove(item.get());
+                    accountRepository.save(account);
+                    return Response.<String>builder()
+                            .data("Delete Success")
+                            .code(HttpStatus.OK.value())
+                            .status(HttpStatus.OK.getReasonPhrase())
+                            .timestamp(System.currentTimeMillis())
+                            .build();
+                } catch (Exception e) {
+                    e.printStackTrace(); // Log the exception
+                    throw new RuntimeException("Error deleting the item", e);
+                }
+            }
+        }else{
+            throw new DataNotFoundException("Item not found");
+        }
+    }
     @Override
     public Response<String> update(String id, UpdateItemRequest request) {
         Account account =

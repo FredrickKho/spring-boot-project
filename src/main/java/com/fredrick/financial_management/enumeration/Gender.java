@@ -10,4 +10,14 @@ public enum Gender {
     Gender(String name) {
         this.name = name;
     }
+    public static Gender getGenderByName(String gender) {
+        if(gender == null || gender.equals(""))
+            return null;
+        for (Gender genders : Gender.values()) {
+            if (genders.getName().toLowerCase().contains(gender.toLowerCase())) {
+                return genders;
+            }
+        }
+        return null;
+    }
 }

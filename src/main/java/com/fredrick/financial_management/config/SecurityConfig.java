@@ -10,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 
 @Configuration
@@ -29,7 +31,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(configurer -> configurer.requestMatchers("/api/x-account/**").permitAll()
+                .authorizeHttpRequests(configurer -> configurer
+                        .requestMatchers("/api/x-account/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/x-item/**").permitAll()
                         .anyRequest().authenticated())
@@ -37,14 +40,14 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(config.corsConfigurationSource()))
                 .authenticationProvider(authenticationProvider)
                 .exceptionHandling(exc -> exc.authenticationEntryPoint(customAuthEntryPoint))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-//        http.headers(header -> header.addHeaderWriter((request, response) -> response.setHeader(
-//                        "X-XSS-Protection",
-//                        "1; mode=block"))
-//                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-//                .contentSecurityPolicy(ContentSecurityPolicy -> ContentSecurityPolicy.policyDirectives(
-//                        "frame-ancestors 'self'")));
-
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler(new CustomLogoutSuccessHandler())
+                        .invalidateHttpSession(true)
+                        .deleteCookies("Authorization")
+                        .permitAll()
+                );
         return http.build();
     }
 }

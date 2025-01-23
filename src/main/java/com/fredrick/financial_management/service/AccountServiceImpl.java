@@ -4,6 +4,8 @@ import com.fredrick.financial_management.dao.AccountRepository;
 import com.fredrick.financial_management.entity.Account;
 import com.fredrick.financial_management.enumeration.Country;
 import com.fredrick.financial_management.enumeration.Gender;
+import com.fredrick.financial_management.enumeration.ItemCategory;
+import com.fredrick.financial_management.enumeration.ItemType;
 import com.fredrick.financial_management.exception.auth.AuthEmailFormatNotValid;
 import com.fredrick.financial_management.exception.crud.InvalidRequestException;
 import com.fredrick.financial_management.request.account.ChangePasswordRequest;
@@ -11,6 +13,7 @@ import com.fredrick.financial_management.request.account.UpdateProfileRequest;
 import com.fredrick.financial_management.response.Pagination;
 import com.fredrick.financial_management.response.Response;
 import com.fredrick.financial_management.util.ValidatorUtil;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +26,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -89,6 +94,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public Response<String> delete(String uuid) {
         List<Account> account = accountRepository.findByUuid(uuid);
         accountRepository.delete(account.get(0));
@@ -175,19 +181,17 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         if (request.getGender() != null) {
-            try {
-                Gender gender = Gender.valueOf(request.getGender().toUpperCase());
-                account.setGender(gender);
-            } catch (Exception e) {
-                errors.add("Gender is invalid");
+            if(Gender.getGenderByName(request.getGender()) != null){
+                account.setGender(request.getGender());
+            } else {
+                errors.add("Invalid Gender");
             }
         }
         if (request.getCountry() != null) {
-            try {
-                Country country = Country.valueOf(request.getCountry().toUpperCase());
-                account.setCountry(country);
-            } catch (Exception e) {
-                errors.add("Country is invalid");
+            if(Country.getCountryByName(request.getCountry()) != null){
+                account.setCountry(request.getCountry());
+            } else {
+                errors.add("Invalid Country");
             }
         }
         if (!errors.isEmpty()) {
@@ -225,20 +229,17 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         if (request.getGender() != null) {
-            try {
-                Gender gender = Gender.valueOf(request.getGender().toUpperCase());
-                account.setGender(gender);
-            } catch (Exception e) {
-                errors.add("Gender is invalid");
+            if(Gender.getGenderByName(request.getGender()) != null){
+                account.setGender(request.getGender());
+            } else {
+                errors.add("Invalid Gender");
             }
         }
         if (request.getCountry() != null) {
-            try {
-                String enumString = request.getCountry().replaceAll(" ", "_").toUpperCase();
-                Country country = Country.valueOf(enumString);
-                account.setCountry(country);
-            } catch (Exception e) {
-                errors.add("Country is invalid");
+            if(Country.getCountryByName(request.getCountry()) != null){
+                account.setCountry(request.getCountry());
+            } else {
+                errors.add("Invalid Country");
             }
         }
         if (!errors.isEmpty()) {
@@ -247,6 +248,18 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
         return Response.<String>builder()
                 .data("")
+                .code(HttpStatus.OK.value())
+                .status(HttpStatus.OK.getReasonPhrase())
+                .timestamp(System.currentTimeMillis())
+                .build();
+    }
+
+    @Override
+    public Response<List<String>> getCountry() {
+        List<String> countries = Arrays.stream(Country.values()).map(Country::getName).collect(
+                Collectors.toList());
+        return Response.<List<String>>builder()
+                .data(countries)
                 .code(HttpStatus.OK.value())
                 .status(HttpStatus.OK.getReasonPhrase())
                 .timestamp(System.currentTimeMillis())

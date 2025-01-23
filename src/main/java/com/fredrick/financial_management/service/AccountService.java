@@ -16,5 +16,5 @@ public interface AccountService {
     Response<String> changePassword(ChangePasswordRequest request);
     Response<String> xChangePassword(String uuid, ChangePasswordRequest request);
     Response<String> xUpdate(String uuid, UpdateProfileRequest request);
-
+    Response<List<String>> getCountry ();
 }

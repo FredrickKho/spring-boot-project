@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public class ItemSpecification {
-    public static Specification<Item> filterByCategory(ItemCategory itemCategory) {
+    public static Specification<Item> filterByCategory(String itemCategory) {
         return (root, query, criteriaBuilder) -> {
             if (itemCategory != null) {
                 return criteriaBuilder.equal(root.get("category"), itemCategory);
@@ -20,7 +20,7 @@ public class ItemSpecification {
         };
     }
 
-    public static Specification<Item> filterByType(ItemType type) {
+    public static Specification<Item> filterByType(String type) {
         return (root, query, criteriaBuilder) -> {
             if (type != null) {
                 return criteriaBuilder.equal(root.get("type"), type);
@@ -29,6 +29,22 @@ public class ItemSpecification {
         };
     }
 
+    public static Specification<Item> filterByStartDate(LocalDate date) {
+        return (root, query, criteriaBuilder) -> {
+            if (date != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("date"), date);
+            }
+            return null;
+        };
+    }
+    public static Specification<Item> filterByEndDate(LocalDate date) {
+        return (root, query, criteriaBuilder) -> {
+            if (date != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("date"), date);
+            }
+            return null;
+        };
+    }
     public static Specification<Item> filterByDate(LocalDate date) {
         return (root, query, criteriaBuilder) -> {
             if (date != null) {
@@ -46,15 +62,16 @@ public class ItemSpecification {
             return null;
         };
     }
-    public static Specification<Item> filter(ItemCategory category, ItemType type, LocalDate date) {
+    public static Specification<Item> filter(String category, String type, LocalDate date) {
         return Specification.where(filterByCategory(category))
                 .and(filterByType(type))
                 .and(filterByDate(date));
     }
-    public static Specification<Item> filter(ItemCategory category, ItemType type, LocalDate date, String uuid) {
+    public static Specification<Item> filter(String category, String type, LocalDate startDate, LocalDate endDate, String uuid) {
         return Specification.where(filterByCategory(category))
                 .and(filterByType(type))
-                .and(filterByDate(date))
+                .and(filterByStartDate(startDate))
+                .and(filterByEndDate(endDate))
                 .and(filterByUUID(uuid));
     }
 }

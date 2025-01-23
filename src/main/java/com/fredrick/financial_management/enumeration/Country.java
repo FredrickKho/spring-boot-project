@@ -40,7 +40,7 @@ public enum Country {
     COLOMBIA("Colombia", "CO"),
     COMOROS("Comoros", "KM"),
     CONGO("Congo", "CG"),
-    CONGO_DEMOCRATIC_REPUBLIC("Congo (Democratic Republic)", "CD"),
+    CONGO_DEMOCRATIC_REPUBLIC("Congo Democratic Republic", "CD"),
     COSTA_RICA("Costa Rica", "CR"),
     CROATIA("Croatia", "HR"),
     CUBA("Cuba", "CU"),
@@ -70,7 +70,7 @@ public enum Country {
     GRENADA("Grenada", "GD"),
     GUATEMALA("Guatemala", "GT"),
     GUINEA("Guinea", "GN"),
-    GUINEA_BISSAU("Guinea-Bissau", "GW"),
+    GUINEA_BISSAU("Guinea Bissau", "GW"),
     GUYANA("Guyana", "GY"),
     HAITI("Haiti", "HT"),
     HONDURAS("Honduras", "HN"),
@@ -89,8 +89,8 @@ public enum Country {
     KAZAKHSTAN("Kazakhstan", "KZ"),
     KENYA("Kenya", "KE"),
     KIRIBATI("Kiribati", "KI"),
-    KOREA_NORTH("Korea, North", "KP"),
-    KOREA_SOUTH("Korea, South", "KR"),
+    NORTH_KOREA("North Korea", "KP"),
+    SOUTH_KOREA("South Korea", "KR"),
     KUWAIT("Kuwait", "KW"),
     KYRGYZSTAN("Kyrgyzstan", "KG"),
     LAOS("Laos", "LA"),
@@ -212,4 +212,14 @@ public enum Country {
         return code;
     }
 
+    public static Country getCountryByName(String country) {
+        if(country == null || country.equals(""))
+            return null;
+        for (Country countries : Country.values()) {
+            if (countries.getName().toLowerCase().contains(country.toLowerCase())) {
+                return countries;
+            }
+        }
+        return null;
+    }
 }

@@ -51,4 +51,8 @@ public class X_AccountController {
         log.info("Hitting PATCH /api/x-account/uuid/changePassword");
         return ResponseEntity.ok(accountService.xChangePassword(uuid,request));
     }
+    @GetMapping("/country")
+    public ResponseEntity<Response<List<String>>> getCountry(){
+        return ResponseEntity.ok(accountService.getCountry());
+    }
 }

@@ -13,11 +13,13 @@ import java.util.List;
 public interface ItemService {
     Response<List<Item>> findAll(String category, String type, String date, int page, int size);
     Response<List<Item>> findAll();
-    Response<List<Item>> getAccountItem(String category, String type, String date, int page, int size);
-    Response<List<Item>> getAccountItem(String category, String type, String date);
+    Response<List<Item>> getAccountItem(String category, String type, String startDate, String endDate, int page, int size);
+    Response<List<Item>> getAccountItem(String category, String type, String startDate, String endDate);
     Response<String> create(CreateItemRequest request);
     Response<String> xCreate(String uuid, CreateItemRequest request);
     Response<String> update(String id, UpdateItemRequest request);
     Response<String> xUpdate(String id, UpdateItemRequest request);
     Response<List<String>> getCategory();
+    Response<String> delete (String id);
+    Response<String> xDelete(String uuid, String itemId);
 }

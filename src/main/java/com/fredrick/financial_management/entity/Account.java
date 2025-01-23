@@ -45,8 +45,7 @@ public class Account implements UserDetails{
     @JsonIgnore
     private String password;
     @Column(name = "gender",nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private String gender;
     @Column(name = "dob",nullable = true)
     private LocalDate dob;
     @Column(name = "phonenumber",nullable = true)
@@ -55,8 +54,7 @@ public class Account implements UserDetails{
     @Builder.Default
     private boolean isActive = true;
     @Column(name = "country",nullable = true)
-    @Enumerated(EnumType.STRING)
-    private Country country;
+    private String country;
 
     @JsonIgnore
     @Column(name = "createDate",nullable = true)
@@ -64,9 +62,7 @@ public class Account implements UserDetails{
     private LocalDateTime createdAt;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "account",fetch = FetchType.EAGER,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-                    CascadeType.DETACH, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "account",fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
     @JsonIgnore
     @Column(name = "role",nullable = false)
@@ -117,6 +113,6 @@ public class Account implements UserDetails{
                 + ", lastname='" + lastname + '\'' + ", email='" + email + '\'' + ", password='"
                 + password + '\'' + ", gender=" + gender + ", dob=" + dob + ", phonenumber='"
                 + phonenumber + '\'' + ", isActive=" + isActive + ", country=" + country
-                + ", createdAt=" + createdAt + ", items=" + items + ", role=" + role + '}';
+                + ", createdAt=" + createdAt + ", role=" + role + '}';
     }
 }

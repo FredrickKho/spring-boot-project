@@ -24,7 +24,6 @@ public class Item {
 
     @Id
     @Column(name="id")
-    @JsonIgnore
     private String id;
     @Column(name="name",nullable = false)
     private String name;
@@ -33,9 +32,8 @@ public class Item {
     private int quantity;
     @Column(name = "totalPrice", nullable = false)
     private Long totalPrice;
-    @Enumerated(EnumType.STRING)
     @Column(name="category",nullable = false)
-    private ItemCategory category;
+    private String category;
 
     @Column(name="location")
     private String location;
@@ -43,12 +41,10 @@ public class Item {
     @Column(name="date")
     private LocalDate date;
 
-    @Enumerated(EnumType.STRING)
     @Column(name="type",nullable = false)
-    private ItemType type;
+    private String type;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne()
     @JoinColumn(name = "uuid")
     @JsonIgnore
     private Account account;
