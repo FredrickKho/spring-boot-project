@@ -38,9 +38,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
+        System.out.println("Auth Header : "+authHeader);
         try{
             Cookie[] cookie = request.getCookies();
             for (Cookie cook : cookie){
+                System.out.println("Cookie : "+cook);
                 if(cook.getName().equals("Authorization")){
                     token = cook.getValue();
                     username = jwtService.extractUserName(token);
@@ -48,6 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         }catch (Exception e){
+            System.out.println("Cookie exception : "+e);
         }
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
