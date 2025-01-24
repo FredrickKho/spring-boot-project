@@ -55,6 +55,9 @@ public class AuthenticationService {
     @Value("${cookie.secure}")
     private boolean secure;
 
+    @Value("${cookie.sameSite}")
+    private String sameSite;
+
     public Response<RegisterResponse> register(@Valid RegisterRequest request, HttpServletResponse response) {
         System.out.println("REGISTER REQUEST : "+request);
         if (!authValidator.validateEmail(request.getEmail()))
@@ -141,12 +144,21 @@ public class AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword()));
         var account = repository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(request.getEmail());
-        Cookie cookie = new Cookie("Authorization",jwtToken);
-        cookie.setHttpOnly(httpOnly); // Make it accessible only via HTTP requests (not via JavaScript)
-        cookie.setSecure(secure); // Only sent over HTTPS in production
-        cookie.setPath("/"); // Available for the entire application
-        cookie.setMaxAge(86400); // Expires after (value) seconds
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie
+                .from("Authorization",jwtToken)
+                .httpOnly(httpOnly)
+                .secure(secure)
+                .maxAge(Duration.ofDays(1))
+                .sameSite(sameSite)
+                .path("/")
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE,cookie.toString());
+//        Cookie cookie = new Cookie("Authorization",jwtToken);
+//        cookie.setHttpOnly(httpOnly); // Make it accessible only via HTTP requests (not via JavaScript)
+//        cookie.setSecure(secure); // Only sent over HTTPS in production
+//        cookie.setPath("/"); // Available for the entire application
+//        cookie.setMaxAge(86400); // Expires after (value) seconds
+//        response.addCookie(cookie);
         String expiredTime = convertToISO8601(String.valueOf(jwtService.extractExpiration(jwtToken)));
         return Response.<AuthenticationResponse>builder()
                 .code(HttpStatus.OK.value())
